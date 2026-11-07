@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Country Clash — name the higher country from its outline</title>
+<style>
+:root{--bg:#0b0f1a;--bg2:#141a2b;--fg:#eef1f8;--mute:#8b94ab;--sil:#cfd8ee;--acc:#6c8cff;--ok:#2ecc71;--bad:#ff4d5e;--warn:#ffb020;--line:#232b42}
+[data-theme=light]{--bg:#f4f6fb;--bg2:#fff;--fg:#141a2b;--mute:#5d667c;--sil:#2b3550;--line:#d9deea}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--fg);background:radial-gradient(1200px 600px at 50% -10%,color-mix(in srgb,var(--acc) 18%,transparent),transparent),var(--bg)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;flex-wrap:wrap}
+h1{margin:0;font-size:1.2rem;letter-spacing:.2em;font-weight:800}h1 span{color:var(--acc)}
+.hud{display:flex;gap:10px}.hud div{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:4px 14px;text-align:center;min-width:72px}
+.hud small{display:block;color:var(--mute);font-size:.65rem;text-transform:uppercase;letter-spacing:.1em}.hud b{font-size:1.4rem;font-variant-numeric:tabular-nums}
+.tools button{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--fg);font-size:1rem}
+main{max-width:960px;margin:0 auto;padding:0 16px 40px;text-align:center}
+.panel{background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:28px;margin:24px auto;max-width:620px}
+button{font:inherit;color:var(--fg)}
+button.primary,#shareBtn{background:var(--acc);color:#fff;border:0;border-radius:12px;padding:12px 28px;font-weight:700;cursor:pointer}
+#shareBtn{background:var(--bg);border:1px solid var(--line);color:var(--fg)}button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.lifetime,.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:16px 0}
+.lifetime div,.grid div{background:var(--bg);border-radius:12px;padding:10px}.lifetime small,.grid small{display:block;color:var(--mute);font-size:.7rem;text-transform:uppercase}
+.cat{margin:8px 0 0;color:var(--acc);text-transform:uppercase;letter-spacing:.15em;font-size:.75rem;font-weight:700}
+#q{margin:4px 0 12px;font-size:clamp(1.2rem,3.5vw,1.8rem)}
+#timer{position:relative;height:10px;background:var(--line);border-radius:99px;max-width:560px;margin:0 auto}
+#bar{height:100%;width:100%;border-radius:99px;background:var(--ok);transition:background .3s}
+#t{position:absolute;right:0;top:14px;font-variant-numeric:tabular-nums;color:var(--mute);font-size:.85rem}
+#timer.warn #bar{background:var(--warn)}#timer.urgent #bar{background:var(--bad);animation:pulse .5s infinite alternate}#timer.urgent #t{color:var(--bad);font-weight:700}
+@keyframes pulse{to{opacity:.55}}
+.last{color:var(--mute);font-size:.85rem;margin:18px 0 4px;min-height:1.2em}
+.arena{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.vs{font-weight:800;color:var(--mute);letter-spacing:.1em}
+.card{background:var(--bg2);border:2px solid var(--line);border-radius:20px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:transform .15s,border-color .2s,box-shadow .2s;animation:in .35s ease}
+.card:hover:not(:disabled){transform:translateY(-4px);border-color:var(--acc)}
+.card svg{width:100%;height:clamp(150px,34vh,320px)}.card path{fill:var(--sil)}
+.card em{font-style:normal;color:var(--mute);font-size:.8rem}
+.reveal b{display:block;font-size:1.1rem}.reveal span{font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums}
+.card:disabled{cursor:default;color:var(--fg)}.card.win{border-color:var(--ok);box-shadow:0 0 28px color-mix(in srgb,var(--ok) 45%,transparent)}
+.card.win .reveal span{color:var(--ok)}.card.lose{opacity:.8}.card.picked.lose{border-color:var(--bad);animation:shake .4s}
+@keyframes in{from{opacity:0;transform:scale(.96)}}@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fb{font-size:1.2rem;font-weight:700;min-height:1.5em;margin:16px 0 0}.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}
+.src{color:var(--mute);font-size:.75rem;margin:2px 0 0}.pb{color:var(--warn);font-weight:700}.err{color:var(--bad)}
+.overlay{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(14px);display:grid;place-items:center;z-index:9}
+@media(max-width:560px){.arena{grid-template-columns:1fr 1fr}.vs{display:none}.card{padding:8px}}
+</style>
+</head>
+<body data-theme="dark">
+<header>
+  <h1>COUNTRY<span>CLASH</span></h1>
+  <div class="hud">
+    <div><small>Streak</small><b id="streak">0</b></div>
+    <div><small>Score</small><b id="score">0</b></div>
+    <div><small>Best</small><b id="best">0</b></div>
+  </div>
+  <div class="tools">
+    <button id="pauseBtn" title="Pause (P)" hidden>⏸</button>
+    <button id="soundBtn" title="Sound">🔊</button>
+    <button id="themeBtn" title="Theme">🌓</button>
+  </div>
+</header>
+<main>
+  <section id="start" class="panel">
+    <h2>Which country is higher?</h2>
+    <p>Two outlines. One statistic. Pick the country with the higher value. One wrong answer — or 45 seconds of dithering — ends your run.</p>
+    <div class="lifetime" id="lifetime"></div>
+    <button class="primary" id="playBtn" disabled>Loading data…</button>
+    <p class="err" id="err"></p><p style="color:var(--mute);font-size:.8rem">First visit downloads the map and live World Bank statistics (about 20–40 s). After that it loads instantly.</p>
+  </section>
+
+  <section id="game" hidden>
+    <p id="cat" class="cat"></p>
+    <h2 id="q"></h2>
+    <div id="timer"><div id="bar"></div><span id="t">45</span></div>
+    <p id="last" class="last">&nbsp;</p>
+    <div class="arena">
+      <button class="card" id="card-a" aria-label="Choose country A"><svg viewBox="0 0 200 200"><path fill-rule="evenodd"/></svg><div class="reveal" hidden><b></b><span></span></div><em>Choose A</em></button>
+      <div class="vs">VS</div>
+      <button class="card" id="card-b" aria-label="Choose country B"><svg viewBox="0 0 200 200"><path fill-rule="evenodd"/></svg><div class="reveal" hidden><b></b><span></span></div><em>Choose B</em></button>
+    </div>
+    <p id="fb" class="fb"></p>
+    <p id="src" class="src"></p>
+    <div id="over" class="panel" hidden>
+      <h2>Game over</h2>
+      <div class="grid" id="overStats"></div>
+      <p id="pbNote" class="pb" hidden>🏆 New personal best!</p>
+      <div class="row"><button class="primary" id="againBtn">Play again</button><button id="shareBtn">Share score</button></div>
+    </div>
+  </section>
+</main>
+<div id="pauseOv" class="overlay" hidden><div><h2>Paused</h2><p>The clock is stopped and the outlines are hidden.</p><button class="primary" id="resumeBtn">Resume</button></div></div>
+<script>
+// ===== storage =====
+const KEY = 'countryClash.v1';
+const DEF = { best: 0, games: 0, correct: 0, answered: 0, highScore: 0, sound: true, theme: 'dark' };
+const load = () => { try { return { ...DEF, ...JSON.parse(localStorage.getItem(KEY)) }; } catch { return { ...DEF }; } };
+const save = s => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} };
+
+// ===== scoring =====
+const MAX_TIME = 45, BASE = 100;
+const BONUS = [[5, 100], [10, 80], [15, 60], [20, 40], [30, 20]];
+const speedBonus = t => { for (const [lim, b] of BONUS) if (t < lim) return b; return 0; };
+const pointsFor = t => BASE + speedBonus(t);
+const tierFor = streak => (streak < 5 ? 'easy' : streak < 10 ? 'medium' : streak < 20 ? 'hard' : 'expert');
+
+// ===== audio =====
+let ctx;
+function play(kind, on) {
+  if (!on) return;
+  try {
+    ctx ??= new (window.AudioContext || window.webkitAudioContext)();
+    const notes = kind === 'ok' ? [[660, 0], [880, 0.11]] : [[240, 0], [150, 0.2]];
+    for (const [f, d] of notes) {
+      const o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + d;
+      o.type = kind === 'ok' ? 'sine' : 'sawtooth'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + 0.26);
+    }
+  } catch {}
+}
+
+// ===== formatting =====
+const compact = v => { const a = Math.abs(v);
+  for (const [n, s] of [[1e12, ' trillion'], [1e9, ' billion'], [1e6, ' million']]) if (a >= n) return (v / n).toFixed(2) + s;
+  return v.toLocaleString('en-US', { maximumFractionDigits: 1 }); };
+function fmt(stat, v) {
+  const u = stat.unit ? ' ' + stat.unit : '';
+  if (stat.kind === 'usd') return '$' + compact(v);
+  if (stat.kind === 'pct') return v.toFixed(1) + '%';
+  if (stat.kind === 'dec') return v.toLocaleString('en-US', { maximumFractionDigits: 2 }) + u;
+  return compact(v) + u;
+}
+
+// ---------- runtime data loader (map from Natural Earth, stats from World Bank) ----------
+const NE_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson';
+const WB_URL = (c, p) => `https://api.worldbank.org/v2/country/all/indicator/${c}?format=json&per_page=20000&mrnev=1&page=${p}`;
+const CACHE_KEY = 'countryClash.data.v1', CACHE_DAYS = 14;
+// [WB code, id, category, label, unit, kind]  kind: num | usd | pct | dec
+const STATS = [
+['SP.POP.TOTL','pop','Population','total population','','num'],
+['EN.POP.DNST','popdens','Population','population density','people/km²','dec'],
+['SP.URB.TOTL','urbpop','Population','urban population','','num'],
+['SP.POP.GROW','popgrow','Population','population growth rate','%','dec'],
+['SP.DYN.CBRT.IN','birth','Population','birth rate (per 1,000 people)','','dec'],
+['SP.URB.TOTL.IN.ZS','urbpct','Population','share of population living in cities','','pct'],
+['NY.GDP.MKTP.CD','gdp','Economy','total GDP (nominal)','','usd'],
+['NY.GDP.PCAP.CD','gdppc','Economy','GDP per capita','','usd'],
+['NY.GDP.MKTP.PP.CD','gdpppp','Economy','GDP (PPP)','','usd'],
+['NY.GDP.MKTP.KD.ZG','gdpgrow','Economy','GDP growth rate','','pct'],
+['NE.EXP.GNFS.CD','exports','Economy','value of exports','','usd'],
+['FI.RES.TOTL.CD','reserves','Economy','foreign exchange reserves','','usd'],
+['ST.INT.RCPT.CD','tourrev','Economy','tourism revenue','','usd'],
+['GC.DOD.TOTL.GD.ZS','debt','Economy','government debt as a share of GDP','','pct'],
+['AG.LND.TOTL.K2','land','Geography','land area','km²','num'],
+['AG.SRF.TOTL.K2','area','Geography','total area','km²','num'],
+['AG.LND.FRST.K2','forestkm','Geography','forest area','km²','num'],
+['AG.LND.FRST.ZS','forestpct','Geography','share of land covered by forest','','pct'],
+['AG.LND.ARBL.HA','arable','Geography','arable land area','hectares','num'],
+['ER.H2O.INTR.PC','water','Geography','renewable freshwater per person','m³','num'],
+['SP.DYN.LE00.IN','life','Health','life expectancy','years','dec'],
+['SP.DYN.IMRT.IN','infmort','Health','infant mortality rate (per 1,000 births)','','dec'],
+['SH.XPD.CHEX.PC.CD','healthpc','Health','healthcare spending per person','','usd'],
+['SH.MED.PHYS.ZS','phys','Health','physicians per 1,000 people','','dec'],
+['SH.MED.BEDS.ZS','beds','Health','hospital beds per 1,000 people','','dec'],
+['SE.ADT.LITR.ZS','lit','Education','adult literacy rate','','pct'],
+['SE.XPD.TOTL.GD.ZS','eduexp','Education','education spending as a share of GDP','','pct'],
+['SE.TER.ENRR','tertiary','Education','university enrollment ratio','','pct'],
+['IT.NET.USER.ZS','net','Technology','share of people using the internet','','pct'],
+['IT.CEL.SETS.P2','mobile','Technology','mobile subscriptions per 100 people','','dec'],
+['EG.FEC.RNEW.ZS','renew','Technology','renewable share of energy consumption','','pct'],
+['EG.USE.ELEC.KH.PC','elec','Technology','electricity use per person','kWh','num'],
+['GB.XPD.RSDV.GD.ZS','rnd','Technology','R&D spending as a share of GDP','','pct'],
+['EG.ELC.ACCS.ZS','access','Technology','share of people with electricity access','','pct'],
+['EN.ATM.CO2E.KT','co2','Environment','total CO₂ emissions','kt','num'],
+['EN.ATM.CO2E.PC','co2pc','Environment','CO₂ emissions per person','t','dec'],
+['AG.LND.PRCP.MM','rain','Environment','average annual rainfall','mm','num'],
+['ER.LND.PTLD.ZS','protected','Environment','share of land that is protected','','pct'],
+['IS.RRS.TOTL.KM','rail','Misc','railway network length','km','num'],
+['ST.INT.ARVL','arrivals','Misc','international tourist arrivals','','num'],
+['MS.MIL.XPND.CD','military','Misc','military spending','','usd'],
+['NV.AGR.TOTL.CD','agri','Misc','agricultural value added','','usd'],
+];
+const FAMOUS = new Set('USA CHN IND BRA RUS JPN DEU GBR FRA ITA CAN AUS MEX ESP IDN SAU TUR EGY ZAF NGA ARG KOR IRN PAK THA SWE NOR FIN CHL PER COL UKR POL GRC NZL IRL ISR CUB NLD CHE'.split(' '));
+const BOX = { DNK:[8,54,15.5,58], FRA:[-5.5,41,10,51.5], NLD:[3,50.5,7.5,53.8], USA:[-125,24,-66,50],
+  NOR:[4,57,32,72], ESP:[-10,35.5,4.5,44], PRT:[-10,36.5,-6,42.2], CHL:[-76,-56,-66,-17.4], ECU:[-82,-5.1,-75,2] };
+
+async function getJSON(u, tries = 3) {
+  for (let i = 0; ; i++) {
+    try { const r = await fetch(u); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); }
+    catch (e) { if (i >= tries) throw new Error('Could not download ' + u.split('?')[0] + ' (' + e.message + ')'); await new Promise(r => setTimeout(r, 1200)); }
+  }
+}
+const ringArea = r => Math.abs(r.reduce((s, p, i) => { const q = r[(i + 1) % r.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
+const bboxOf = pts => pts.reduce((b, [x, y]) => [Math.min(b[0], x), Math.min(b[1], y), Math.max(b[2], x), Math.max(b[3], y)], [1e9, 1e9, -1e9, -1e9]);
+
+function silhouette(iso, geom) {
+  const shift = iso === 'RUS' ? ([x, y]) => [x < 0 ? x + 360 : x, y] : p => p;
+  const polys = (geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates).map(p => p.map(r => r.map(shift)));
+  const info = polys.map(p => { const b = bboxOf(p[0]); return { p, a: ringArea(p[0]), c: [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2] }; });
+  let keep = info;
+  if (BOX[iso]) { const [x0, y0, x1, y1] = BOX[iso]; keep = info.filter(i => i.c[0] >= x0 && i.c[0] <= x1 && i.c[1] >= y0 && i.c[1] <= y1); }
+  if (!keep.length) keep = info;
+  const big = keep.reduce((m, i) => (i.a > m.a ? i : m));
+  const tot = keep.reduce((s, i) => s + i.a, 0);
+  keep = keep.filter(i => i === big || (i.a >= tot * 0.002 && Math.hypot(i.c[0] - big.c[0], i.c[1] - big.c[1]) <= 60));
+  const [x0, y0, x1, y1] = bboxOf(keep.flatMap(i => i.p.flat())), k = Math.cos(((y0 + y1) / 2) * Math.PI / 180);
+  const W = (x1 - x0) * k, H = y1 - y0, s = 196 / Math.max(W, H);
+  const tx = ([x, y]) => [(x - x0) * k * s + 2, (y1 - y) * s + 2];
+  let d = '';
+  for (const i of keep) for (const ring of i.p) {
+    const out = []; for (const pt of ring.map(tx)) { const l = out[out.length - 1]; if (!l || Math.hypot(pt[0] - l[0], pt[1] - l[1]) >= 0.35) out.push(pt); }
+    if (out.length >= 3) d += 'M' + out.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L') + 'Z';
+  }
+  return { viewBox: `0 0 ${(W * s + 4).toFixed(1)} ${(H * s + 4).toFixed(1)}`, path: d };
+}
+
+async function loadData(onProgress = () => {}) {
+  try { const c = JSON.parse(localStorage.getItem(CACHE_KEY)); if (c && c.d && Date.now() - c.t < CACHE_DAYS * 864e5) return c.d; } catch {}
+  onProgress('map…');
+  const ne = await getJSON(NE_URL);
+  const countries = {};
+  for (const f of ne.features) {
+    const p = k => f.properties[k] ?? f.properties[k.toLowerCase()];
+    const iso = p('ISO_A3_EH'), cont = p('CONTINENT');
+    if (!iso || iso === '-99' || iso === 'ATA' || /Seven seas/.test(cont)) continue;
+    if (cont === 'Oceania' && !['AUS', 'NZL'].includes(iso)) continue;
+    countries[iso] = { id: iso, name: p('NAME'), continent: cont, famous: FAMOUS.has(iso), ...silhouette(iso, f.geometry) };
+  }
+  const stats = {}; let done = 0, queue = [...STATS];
+  async function worker() {
+    while (queue.length) {
+      const [code, id, category, label, unit, kind] = queue.shift();
+      try {
+        const values = {}; let page = 1, pages = 1;
+        do {
+          const [meta, rows] = await getJSON(WB_URL(code, page), 2); pages = meta.pages;
+          for (const r of rows || []) if (r.value != null && countries[r.countryiso3code]) values[r.countryiso3code] = [r.value, +r.date];
+        } while (++page <= pages);
+        stats[id] = { id, category, label, unit, kind, source: `World Bank Open Data (${code})`, values };
+      } catch (e) { console.warn('Skipped', code, e.message); }
+      onProgress(`${++done}/${STATS.length}`);
+    }
+  }
+  await Promise.all(Array.from({ length: 6 }, worker));
+  for (const id of Object.keys(stats)) if (Object.keys(stats[id].values).length < 25) delete stats[id];
+  if (Object.keys(stats).length < 10) throw new Error('Could not download the World Bank statistics. Check your internet connection and refresh.');
+  for (const iso of Object.keys(countries)) if (Object.values(stats).filter(s => s.values[iso]).length < 12) delete countries[iso];
+  const d = { countries, stats };
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d })); } catch {}
+  return d;
+}
+
+// ===== questions =====
+// allowed relative gap |a-b|/max(|a|,|b|) per tier
+const REL = { easy: [0.75, 1], medium: [0.4, 0.85], hard: [0.15, 0.5], expert: [0.04, 0.25] };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+class QuestionGenerator {
+  constructor(data) {
+    this.c = data.countries;
+    this.stats = Object.values(data.stats).map(s => ({ ...s, keys: Object.keys(s.values).filter(k => this.c[k]) }))
+      .map(s => ({ ...s, fam: s.keys.filter(k => this.c[k].famous) }));
+    this.reset();
+  }
+  reset() { this.pairs = new Set(); this.lastIds = []; this.lastStat = null; this.lastCat = null; this.cont = {}; this.wins = {}; }
+
+  weighted(keys) { // favour continents shown less often this session
+    const w = keys.map(k => 1 / (1 + (this.cont[this.c[k].continent] || 0)));
+    let r = Math.random() * w.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < keys.length; i++) if ((r -= w[i]) <= 0) return keys[i];
+    return keys[keys.length - 1];
+  }
+  attempt(tier, relax) {
+    const pool = this.stats.filter(s => s.id !== this.lastStat && (relax >= 3 || s.category !== this.lastCat));
+    const s = pick(pool); if (!s || s.keys.length < 2) return null;
+    const famA = tier === 'easy' || tier === 'medium', famB = tier === 'easy';
+    const A = (famA && relax < 2 && s.fam.length > 5) ? s.fam : s.keys;
+    const B = (famB && relax < 2 && s.fam.length > 5) ? s.fam : s.keys;
+    const a = this.weighted(A), b = pick(B);
+    if (a === b || this.lastIds.includes(a) || this.lastIds.includes(b) || this.pairs.has([a, b].sort().join())) return null;
+    const [va, ya] = s.values[a], [vb, yb] = s.values[b];
+    if (Math.abs(ya - yb) > (relax >= 3 ? 4 : 2)) return null;
+    const rel = Math.abs(va - vb) / Math.max(Math.abs(va), Math.abs(vb));
+    const [lo, hi] = REL[tier];
+    if (!(rel > 0) || rel < Math.max(0.03, lo / (1 + relax)) || rel > Math.min(1, hi * (1 + relax * 0.5))) return null;
+    if (relax < 2 && ((this.wins[va > vb ? a : b] || 0) >= 2)) return null; // don't let one country always be right
+    const flip = Math.random() < 0.5, x = { id: a, v: va, y: ya }, y = { id: b, v: vb, y: yb };
+    const [L, R] = flip ? [y, x] : [x, y];
+    return { stat: s, a: L, b: R, tier, correct: L.v > R.v ? 'a' : 'b' };
+  }
+  next(streak) {
+    const tier = tierFor(streak);
+    for (let relax = 0; relax < 5; relax++) for (let i = 0; i < 500; i++) {
+      const q = this.attempt(tier, relax);
+      if (q) { this.commit(q); return q; }
+    }
+    return null;
+  }
+  commit(q) {
+    this.pairs.add([q.a.id, q.b.id].sort().join()); this.lastIds = [q.a.id, q.b.id];
+    this.lastStat = q.stat.id; this.lastCat = q.stat.category;
+    for (const k of this.lastIds) this.cont[this.c[k].continent] = (this.cont[this.c[k].continent] || 0) + 1;
+    const w = q.correct === 'a' ? q.a.id : q.b.id; this.wins[w] = (this.wins[w] || 0) + 1;
+  }
+}
+
+// ===== game =====
+
+const $ = s => document.querySelector(s);
+const prefs = load();
+let data, gen, S, q, t0, pausedMs = 0, pauseAt = 0, paused = false, locked = true, raf = 0;
+
+const applyPrefs = () => { document.body.dataset.theme = prefs.theme; $('#soundBtn').textContent = prefs.sound ? '🔊' : '🔇'; };
+const hud = () => { $('#streak').textContent = S?.streak ?? 0; $('#score').textContent = S?.score ?? 0; $('#best').textContent = prefs.best; };
+const stat = (l, v) => `<div><small>${l}</small><b>${v}</b></div>`;
+const pct = () => (prefs.answered ? Math.round(100 * prefs.correct / prefs.answered) + '%' : '–');
+function showLifetime() {
+  $('#lifetime').innerHTML = stat('Best streak', prefs.best) + stat('Highest score', prefs.highScore) + stat('Games', prefs.games) + stat('Accuracy', pct());
+}
+
+async function init() {
+  applyPrefs(); hud(); showLifetime();
+  try { data = await loadData(p => { $('#playBtn').textContent = 'Loading data… ' + p; }); gen = new QuestionGenerator(data); $('#playBtn').disabled = false; $('#playBtn').textContent = 'Play'; }
+  catch (e) { $('#err').textContent = e.message; $('#playBtn').textContent = 'Unavailable'; }
+}
+
+function start() {
+  gen.reset();
+  S = { streak: 0, score: 0, correct: 0, times: [] };
+  $('#start').hidden = true; $('#over').hidden = true; $('#game').hidden = false; $('#pauseBtn').hidden = false;
+  $('#last').innerHTML = '&nbsp;'; hud(); round();
+}
+
+function round() {
+  q = gen.next(S.streak);
+  if (!q) return finish('You cleared the whole question pool!');
+  for (const side of ['a', 'b']) {
+    const info = data.countries[q[side].id], card = $('#card-' + side);
+    card.className = 'card'; card.disabled = false;
+    card.querySelector('svg').setAttribute('viewBox', info.viewBox);
+    card.querySelector('path').setAttribute('d', info.path);
+    card.querySelector('.reveal').hidden = true; card.querySelector('em').hidden = false;
+  }
+  $('#cat').textContent = `${q.stat.category} · ${tierFor(S.streak)}`;
+  $('#q').textContent = `Which country has a higher ${q.stat.label}?`;
+  $('#fb').textContent = ''; $('#fb').className = 'fb'; $('#src').textContent = '';
+  locked = false; pausedMs = 0; t0 = performance.now();
+  cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+}
+
+const elapsed = () => (performance.now() - t0 - pausedMs) / 1000;
+function tick() {
+  if (paused || locked) return;
+  const left = Math.max(0, MAX_TIME - elapsed());
+  $('#bar').style.width = (100 * left / MAX_TIME) + '%';
+  $('#t').textContent = Math.ceil(left);
+  $('#timer').className = left <= 10 ? 'urgent' : left <= 20 ? 'warn' : '';
+  if (left <= 0) return answer(null);
+  raf = requestAnimationFrame(tick);
+}
+
+function reveal(pick) {
+  for (const side of ['a', 'b']) {
+    const card = $('#card-' + side), r = card.querySelector('.reveal'), x = q[side];
+    card.disabled = true; card.querySelector('em').hidden = true;
+    card.classList.add(side === q.correct ? 'win' : 'lose'); if (side === pick) card.classList.add('picked');
+    r.querySelector('b').textContent = data.countries[x.id].name;
+    r.querySelector('span').textContent = fmt(q.stat, x.v) + ` (${x.y})`; r.hidden = false;
+  }
+  $('#src').textContent = 'Source: ' + q.stat.source;
+}
+
+function answer(side) {
+  if (locked) return; locked = true; cancelAnimationFrame(raf);
+  const t = side ? Math.min(MAX_TIME, elapsed()) : MAX_TIME, ok = side === q.correct;
+  reveal(side); play(ok ? 'ok' : 'bad', prefs.sound);
+  if (ok) {
+    const pts = pointsFor(t); S.streak++; S.correct++; S.score += pts; S.times.push(t); hud();
+    $('#fb').textContent = `✔ Correct! +${pts} (100 + ${speedBonus(t)} speed)`; $('#fb').className = 'fb ok';
+    $('#last').textContent = `Last answer: ${t.toFixed(1)}s · +${pts} pts`;
+    setTimeout(() => { if (!paused) round(); else locked = true, resumeThen = round; }, 2400);
+  } else {
+    $('#fb').textContent = side ? '✘ Wrong answer' : '⏱ Time’s up!'; $('#fb').className = 'fb bad';
+    finish();
+  }
+}
+let resumeThen = null;
+
+function finish(msg) {
+  prefs.games++; prefs.correct += S.correct; prefs.answered += S.correct + (msg ? 0 : 1);
+  const isPB = S.streak > prefs.best; if (isPB) prefs.best = S.streak;
+  prefs.highScore = Math.max(prefs.highScore, S.score); save(prefs); hud(); showLifetime();
+  const avg = S.times.length ? (S.times.reduce((a, b) => a + b, 0) / S.times.length).toFixed(1) + 's' : '–';
+  const best = S.times.length ? Math.min(...S.times).toFixed(1) + 's' : '–';
+  $('#overStats').innerHTML = stat('Final score', S.score) + stat('Final streak', S.streak) + stat('Personal best', prefs.best)
+    + stat('Correct answers', S.correct) + stat('Avg response', avg) + stat('Best response', best) + stat('Accuracy', pct());
+  $('#pbNote').hidden = !isPB || !S.streak; $('#over').hidden = false; $('#pauseBtn').hidden = true;
+  setTimeout(() => $('#over').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
+}
+
+function setPause(on) {
+  if (!S || $('#over').hidden === false || $('#game').hidden) return;
+  if (on === paused) return; paused = on; $('#pauseOv').hidden = !on;
+  if (on) { pauseAt = performance.now(); cancelAnimationFrame(raf); }
+  else {
+    pausedMs += performance.now() - pauseAt;
+    if (resumeThen) { const f = resumeThen; resumeThen = null; f(); } else if (!locked) raf = requestAnimationFrame(tick);
+  }
+}
+
+$('#playBtn').onclick = $('#againBtn').onclick = start;
+$('#card-a').onclick = () => !paused && answer('a');
+$('#card-b').onclick = () => !paused && answer('b');
+$('#pauseBtn').onclick = () => setPause(true); $('#resumeBtn').onclick = () => setPause(false);
+$('#soundBtn').onclick = () => { prefs.sound = !prefs.sound; save(prefs); applyPrefs(); };
+$('#themeBtn').onclick = () => { prefs.theme = prefs.theme === 'dark' ? 'light' : 'dark'; save(prefs); applyPrefs(); };
+$('#shareBtn').onclick = async () => {
+  const text = `🌍 Country Clash — streak ${S.streak}, score ${S.score} (best streak ${prefs.best}). Can you beat me?`;
+  try { navigator.share ? await navigator.share({ text, url: location.href }) : await navigator.clipboard.writeText(text + ' ' + location.href); $('#shareBtn').textContent = 'Copied ✓'; } catch {}
+};
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'p') setPause(!paused);
+  else if (!paused && (k === 'arrowleft' || k === 'a')) answer('a');
+  else if (!paused && (k === 'arrowright' || k === 'b')) answer('b');
+});
+init();
+
+</script>
+</body>
+</html>
