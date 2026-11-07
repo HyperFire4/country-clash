@@ -7,7 +7,8 @@
 <style>
 :root{--bg:#0b0f1a;--bg2:#141a2b;--fg:#eef1f8;--mute:#8b94ab;--sil:#cfd8ee;--acc:#6c8cff;--ok:#2ecc71;--bad:#ff4d5e;--warn:#ffb020;--line:#232b42}
 [data-theme=light]{--bg:#f4f6fb;--bg2:#fff;--fg:#141a2b;--mute:#5d667c;--sil:#2b3550;--line:#d9deea}
-*{box-sizing:border-box}   [hidden]{display:none!important}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;min-height:100vh;font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--fg);background:radial-gradient(1200px 600px at 50% -10%,color-mix(in srgb,var(--acc) 18%,transparent),transparent),var(--bg)}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;flex-wrap:wrap}
 h1{margin:0;font-size:1.2rem;letter-spacing:.2em;font-weight:800}h1 span{color:var(--acc)}
@@ -44,9 +45,73 @@ button.primary,#shareBtn{background:var(--acc);color:#fff;border:0;border-radius
 .src{color:var(--mute);font-size:.75rem;margin:2px 0 0}.pb{color:var(--warn);font-weight:700}.err{color:var(--bad)}
 .overlay{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(14px);display:grid;place-items:center;z-index:9}
 @media(max-width:560px){.arena{grid-template-columns:1fr 1fr}.vs{display:none}.card{padding:8px}}
+
+/* ===== visual upgrade ===== */
+:root{--a:#4cc9f0;--b:#ff5fa2}
+body{position:relative;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-20%;z-index:-2;pointer-events:none;
+ background:radial-gradient(40% 40% at 20% 25%,color-mix(in srgb,var(--a) 32%,transparent),transparent 70%),
+ radial-gradient(40% 40% at 80% 70%,color-mix(in srgb,var(--b) 28%,transparent),transparent 70%),
+ radial-gradient(35% 35% at 60% 10%,color-mix(in srgb,var(--acc) 25%,transparent),transparent 70%);animation:drift 18s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+ background-image:radial-gradient(color-mix(in srgb,var(--fg) 22%,transparent) 1px,transparent 1.5px);background-size:30px 30px;
+ -webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse at center,#000 30%,transparent 80%)}
+[data-theme=light] body::before{opacity:.55}
+@keyframes drift{to{transform:translate(4%,-3%) scale(1.12) rotate(6deg)}}
+h1{font-size:1.35rem;background:linear-gradient(90deg,var(--a),var(--acc),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+h1 span{color:inherit;-webkit-text-fill-color:transparent}
+.hud div{background:color-mix(in srgb,var(--bg2) 70%,transparent);backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.hud b{background:linear-gradient(180deg,var(--fg),color-mix(in srgb,var(--acc) 70%,var(--fg)));-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+.hud div.hot{border-color:var(--warn);box-shadow:0 0 26px color-mix(in srgb,var(--warn) 55%,transparent);animation:glow 1.2s ease-in-out infinite alternate}
+.hud div.hot small::after{content:" 🔥"}
+@keyframes glow{to{box-shadow:0 0 42px color-mix(in srgb,var(--warn) 80%,transparent)}}
+#streak.pop{animation:pop .5s cubic-bezier(.2,2,.4,1)}@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.7)}100%{transform:scale(1)}}
+.panel{background:linear-gradient(160deg,color-mix(in srgb,var(--bg2) 85%,transparent),color-mix(in srgb,var(--bg) 70%,transparent));backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.35);border-color:color-mix(in srgb,var(--acc) 35%,var(--line))}
+.globe{font-size:4rem;animation:float 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 24px color-mix(in srgb,var(--acc) 60%,transparent))}
+@keyframes float{50%{transform:translateY(-10px) rotate(8deg)}}
+button.primary{background:linear-gradient(135deg,var(--acc),#9b6bff);box-shadow:0 8px 28px color-mix(in srgb,var(--acc) 55%,transparent);transition:transform .15s,box-shadow .2s;font-size:1.05rem}
+button.primary:hover:not(:disabled){transform:translateY(-2px) scale(1.03);box-shadow:0 12px 36px color-mix(in srgb,var(--acc) 75%,transparent)}
+.cat{display:inline-block;padding:3px 12px;border-radius:99px;border:1px solid currentColor}
+.cat[data-tier=easy]{color:var(--ok)}.cat[data-tier=medium]{color:var(--warn)}.cat[data-tier=hard]{color:#ff7a3d}.cat[data-tier=expert]{color:var(--bad);box-shadow:0 0 14px color-mix(in srgb,var(--bad) 50%,transparent)}
+#q{text-shadow:0 2px 24px color-mix(in srgb,var(--acc) 40%,transparent)}
+#timer{height:12px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
+#bar{background:linear-gradient(90deg,var(--ok),#9be15d);box-shadow:0 0 14px color-mix(in srgb,var(--ok) 70%,transparent)}
+#timer.warn #bar{background:linear-gradient(90deg,var(--warn),#ffd36b);box-shadow:0 0 14px var(--warn)}
+#timer.urgent #bar{background:linear-gradient(90deg,var(--bad),#ff8a5c);box-shadow:0 0 18px var(--bad)}
+#t{font-size:1rem;font-weight:700}
+#card-a{--c:var(--a)}#card-b{--c:var(--b)}
+.card{position:relative;background:linear-gradient(150deg,color-mix(in srgb,var(--c) 14%,var(--bg2)),var(--bg2) 65%);border-color:color-mix(in srgb,var(--c) 40%,var(--line));overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--c) 22%,transparent),transparent 65%);opacity:.8;pointer-events:none}
+.card:hover:not(:disabled){border-color:var(--c);box-shadow:0 14px 44px color-mix(in srgb,var(--c) 40%,transparent);transform:translateY(-6px) scale(1.015)}
+#card-a path{fill:url(#gA)}#card-b path{fill:url(#gB)}
+.card svg{position:relative;filter:drop-shadow(0 6px 18px color-mix(in srgb,var(--c) 55%,transparent));animation:sil .6s cubic-bezier(.2,1.2,.4,1)}
+@keyframes sil{from{opacity:0;transform:scale(.8) rotate(-4deg)}}
+.card em{position:relative;align-self:center;padding:5px 18px;border-radius:99px;background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--fg);font-weight:700;letter-spacing:.06em;transition:background .2s}
+.card:hover:not(:disabled) em{background:var(--c);color:#0b0f1a}
+.reveal{position:relative}
+.vs{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;box-shadow:0 0 28px color-mix(in srgb,var(--acc) 55%,transparent);animation:float 3.5s ease-in-out infinite;letter-spacing:0}
+.card.win{box-shadow:0 0 40px color-mix(in srgb,var(--ok) 60%,transparent)}
+.fb{font-size:1.4rem;animation:in .3s ease}
+.dot{position:fixed;width:9px;height:9px;border-radius:50%;pointer-events:none;z-index:20;animation:burst .9s ease-out forwards}
+@keyframes burst{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+body.flash{animation:flash .6s ease-out}@keyframes flash{0%{box-shadow:inset 0 0 140px 30px rgba(255,77,94,.6)}100%{box-shadow:inset 0 0 0 0 transparent}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.lifelines{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin:6px 0 4px}
+.lifelines button,.chip{border-radius:99px;padding:7px 16px;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:color-mix(in srgb,var(--bg2) 80%,transparent);color:var(--fg);cursor:pointer;transition:transform .15s,border-color .2s,box-shadow .2s}
+.lifelines button:hover:not(:disabled){transform:translateY(-2px);border-color:var(--acc);box-shadow:0 6px 20px color-mix(in srgb,var(--acc) 40%,transparent)}
+#flagBtn:hover:not(:disabled){border-color:var(--warn);box-shadow:0 6px 20px color-mix(in srgb,var(--warn) 40%,transparent)}
+.lifelines button:disabled{opacity:.4;cursor:default}
+.chip{cursor:default;border-color:var(--ok);color:var(--ok)}.chip.used{border-color:var(--line);color:var(--mute);text-decoration:line-through}
+.hintnote{min-height:1.3em;margin:2px 0 0;color:var(--warn);font-weight:600;font-size:.9rem}
+.flag{position:relative;height:36px;width:auto;align-self:center;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.4);animation:in .3s ease}
+.clues{position:relative;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.clues span{background:color-mix(in srgb,var(--c) 25%,transparent);border-radius:99px;padding:3px 12px;font-size:.8rem;font-weight:600;animation:in .3s ease}
+.fb.warn{color:var(--warn)}
 </style>
 </head>
 <body data-theme="dark">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="gA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bff3ff"/><stop offset="1" stop-color="#4cc9f0"/></linearGradient><linearGradient id="gB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd0e4"/><stop offset="1" stop-color="#ff5fa2"/></linearGradient></defs></svg>
 <header>
   <h1>COUNTRY<span>CLASH</span></h1>
   <div class="hud">
@@ -62,8 +127,10 @@ button.primary,#shareBtn{background:var(--acc);color:#fff;border:0;border-radius
 </header>
 <main>
   <section id="start" class="panel">
+    <div class="globe">🌍</div>
     <h2>Which country is higher?</h2>
     <p>Two outlines. One statistic. Pick the country with the higher value. One wrong answer — or 45 seconds of dithering — ends your run.</p>
+    <p style="color:var(--mute)">Each run: 💡 3 hints · 🛡 1 shield · 🚩 flags (half points)</p>
     <div class="lifetime" id="lifetime"></div>
     <button class="primary" id="playBtn" disabled>Loading data…</button>
     <p class="err" id="err"></p><p style="color:var(--mute);font-size:.8rem">First visit downloads the map and live World Bank statistics (about 20–40 s). After that it loads instantly.</p>
@@ -74,10 +141,12 @@ button.primary,#shareBtn{background:var(--acc);color:#fff;border:0;border-radius
     <h2 id="q"></h2>
     <div id="timer"><div id="bar"></div><span id="t">45</span></div>
     <p id="last" class="last">&nbsp;</p>
+    <div class="lifelines"><button id="hintBtn" disabled title="Hint (H)">💡 Hint ×3</button><button id="flagBtn" disabled title="Flags (F) — halves this round's points">🚩 Flags (½ pts)</button><span id="shieldChip" class="chip">🛡 Shield ready</span></div>
+    <p id="hintNote" class="hintnote"></p>
     <div class="arena">
-      <button class="card" id="card-a" aria-label="Choose country A"><svg viewBox="0 0 200 200"><path fill-rule="evenodd"/></svg><div class="reveal" hidden><b></b><span></span></div><em>Choose A</em></button>
+      <button class="card" id="card-a" aria-label="Choose country A"><img class="flag" alt="" hidden><svg viewBox="0 0 200 200"><path fill-rule="evenodd"/></svg><div class="clues"></div><div class="reveal" hidden><b></b><span></span></div><em>Choose A</em></button>
       <div class="vs">VS</div>
-      <button class="card" id="card-b" aria-label="Choose country B"><svg viewBox="0 0 200 200"><path fill-rule="evenodd"/></svg><div class="reveal" hidden><b></b><span></span></div><em>Choose B</em></button>
+      <button class="card" id="card-b" aria-label="Choose country B"><img class="flag" alt="" hidden><svg viewBox="0 0 200 200"><path fill-rule="evenodd"/></svg><div class="clues"></div><div class="reveal" hidden><b></b><span></span></div><em>Choose B</em></button>
     </div>
     <p id="fb" class="fb"></p>
     <p id="src" class="src"></p>
@@ -135,7 +204,7 @@ function fmt(stat, v) {
 // ---------- runtime data loader (map from Natural Earth, stats from World Bank) ----------
 const NE_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson';
 const WB_URL = (c, p) => `https://api.worldbank.org/v2/country/all/indicator/${c}?format=json&per_page=20000&mrnev=1&page=${p}`;
-const CACHE_KEY = 'countryClash.data.v1', CACHE_DAYS = 14;
+const CACHE_KEY = 'countryClash.data.v2', CACHE_DAYS = 14;
 // [WB code, id, category, label, unit, kind]  kind: num | usd | pct | dec
 const STATS = [
 ['SP.POP.TOTL','pop','Population','total population','','num'],
@@ -225,7 +294,7 @@ async function loadData(onProgress = () => {}) {
     const iso = p('ISO_A3_EH'), cont = p('CONTINENT');
     if (!iso || iso === '-99' || iso === 'ATA' || /Seven seas/.test(cont)) continue;
     if (cont === 'Oceania' && !['AUS', 'NZL'].includes(iso)) continue;
-    countries[iso] = { id: iso, name: p('NAME'), continent: cont, famous: FAMOUS.has(iso), ...silhouette(iso, f.geometry) };
+    countries[iso] = { id: iso, name: p('NAME'), continent: cont, iso2: p('ISO_A2_EH'), famous: FAMOUS.has(iso), ...silhouette(iso, f.geometry) };
   }
   const stats = {}; let done = 0, queue = [...STATS];
   async function worker() {
@@ -309,10 +378,11 @@ class QuestionGenerator {
 
 const $ = s => document.querySelector(s);
 const prefs = load();
+let hintLevel = 0, flagged = false;
 let data, gen, S, q, t0, pausedMs = 0, pauseAt = 0, paused = false, locked = true, raf = 0;
 
 const applyPrefs = () => { document.body.dataset.theme = prefs.theme; $('#soundBtn').textContent = prefs.sound ? '🔊' : '🔇'; };
-const hud = () => { $('#streak').textContent = S?.streak ?? 0; $('#score').textContent = S?.score ?? 0; $('#best').textContent = prefs.best; };
+const hud = () => { $('#streak').textContent = S?.streak ?? 0; $('#score').textContent = S?.score ?? 0; $('#best').textContent = prefs.best; $('#streak').parentElement.classList.toggle('hot', (S?.streak || 0) >= 5); };
 const stat = (l, v) => `<div><small>${l}</small><b>${v}</b></div>`;
 const pct = () => (prefs.answered ? Math.round(100 * prefs.correct / prefs.answered) + '%' : '–');
 function showLifetime() {
@@ -327,7 +397,7 @@ async function init() {
 
 function start() {
   gen.reset();
-  S = { streak: 0, score: 0, correct: 0, times: [] };
+  S = { streak: 0, score: 0, correct: 0, times: [], hints: 3, shield: true, saved: 0 };
   $('#start').hidden = true; $('#over').hidden = true; $('#game').hidden = false; $('#pauseBtn').hidden = false;
   $('#last').innerHTML = '&nbsp;'; hud(); round();
 }
@@ -335,17 +405,18 @@ function start() {
 function round() {
   q = gen.next(S.streak);
   if (!q) return finish('You cleared the whole question pool!');
+  resetRound();
   for (const side of ['a', 'b']) {
     const info = data.countries[q[side].id], card = $('#card-' + side);
-    card.className = 'card'; card.disabled = false;
+    card.className = 'card'; card.disabled = false; for (const el of [card, card.querySelector('svg')]) { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
     card.querySelector('svg').setAttribute('viewBox', info.viewBox);
     card.querySelector('path').setAttribute('d', info.path);
     card.querySelector('.reveal').hidden = true; card.querySelector('em').hidden = false;
   }
-  $('#cat').textContent = `${q.stat.category} · ${tierFor(S.streak)}`;
+  $('#cat').textContent = `${q.stat.category} · ${tierFor(S.streak)}`; $('#cat').dataset.tier = tierFor(S.streak);
   $('#q').textContent = `Which country has a higher ${q.stat.label}?`;
   $('#fb').textContent = ''; $('#fb').className = 'fb'; $('#src').textContent = '';
-  locked = false; pausedMs = 0; t0 = performance.now();
+  locked = false; pausedMs = 0; t0 = performance.now(); lifeUI();
   cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
 }
 
@@ -372,23 +443,27 @@ function reveal(pick) {
 }
 
 function answer(side) {
-  if (locked) return; locked = true; cancelAnimationFrame(raf);
+  if (locked) return; locked = true; cancelAnimationFrame(raf); lifeUI();
   const t = side ? Math.min(MAX_TIME, elapsed()) : MAX_TIME, ok = side === q.correct;
-  reveal(side); play(ok ? 'ok' : 'bad', prefs.sound);
+  reveal(side); play(ok ? 'ok' : 'bad', prefs.sound); fx(ok, side);
   if (ok) {
-    const pts = pointsFor(t); S.streak++; S.correct++; S.score += pts; S.times.push(t); hud();
-    $('#fb').textContent = `✔ Correct! +${pts} (100 + ${speedBonus(t)} speed)`; $('#fb').className = 'fb ok';
+    const pts = flagged ? Math.floor(pointsFor(t) / 2) : pointsFor(t); S.streak++; S.correct++; S.score += pts; S.times.push(t); hud();
+    $('#fb').textContent = `✔ Correct! +${pts} ` + (flagged ? '(flags used: half points)' : `(100 + ${speedBonus(t)} speed)`); $('#fb').className = 'fb ok';
     $('#last').textContent = `Last answer: ${t.toFixed(1)}s · +${pts} pts`;
-    setTimeout(() => { if (!paused) round(); else locked = true, resumeThen = round; }, 2400);
+    later(2400);
   } else {
     $('#fb').textContent = side ? '✘ Wrong answer' : '⏱ Time’s up!'; $('#fb').className = 'fb bad';
-    finish();
+    if (S.shield) {
+      S.shield = false; S.saved++; lifeUI();
+      $('#fb').textContent = `🛡 Shield used! The right answer was ${data.countries[q[q.correct].id].name}. No points — next round…`; $('#fb').className = 'fb warn';
+      later(3400);
+    } else finish();
   }
 }
 let resumeThen = null;
 
 function finish(msg) {
-  prefs.games++; prefs.correct += S.correct; prefs.answered += S.correct + (msg ? 0 : 1);
+  prefs.games++; prefs.correct += S.correct; prefs.answered += S.correct + S.saved + (msg ? 0 : 1);
   const isPB = S.streak > prefs.best; if (isPB) prefs.best = S.streak;
   prefs.highScore = Math.max(prefs.highScore, S.score); save(prefs); hud(); showLifetime();
   const avg = S.times.length ? (S.times.reduce((a, b) => a + b, 0) / S.times.length).toFixed(1) + 's' : '–';
@@ -399,9 +474,43 @@ function finish(msg) {
   setTimeout(() => $('#over').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
 }
 
+const later = ms => setTimeout(() => { if (!paused) round(); else resumeThen = round; }, ms);
+function lifeUI() {
+  if (!S) return;
+  const live = !locked && !paused;
+  $('#hintBtn').textContent = `💡 Hint ×${S.hints}`; $('#hintBtn').disabled = !live || S.hints <= 0 || hintLevel >= 3;
+  $('#flagBtn').disabled = !live || flagged;
+  $('#shieldChip').textContent = S.shield ? '🛡 Shield ready' : '🛡 Shield used'; $('#shieldChip').classList.toggle('used', !S.shield);
+}
+function resetRound() {
+  hintLevel = 0; flagged = false; $('#hintNote').textContent = '';
+  for (const side of ['a', 'b']) { const card = $('#card-' + side); card.querySelector('.clues').innerHTML = ''; const f = card.querySelector('.flag'); f.hidden = true; f.removeAttribute('src'); }
+}
+function useHint() {
+  if (!S || locked || paused || S.hints <= 0 || hintLevel >= 3) return;
+  S.hints--; hintLevel++;
+  if (hintLevel < 3) for (const side of ['a', 'b']) {
+    const c = data.countries[q[side].id], chip = document.createElement('span');
+    chip.textContent = hintLevel === 1 ? c.continent : `Starts with “${c.name[0]}”`;
+    $('#card-' + side).querySelector('.clues').appendChild(chip);
+  } else {
+    const hi = Math.max(Math.abs(q.a.v), Math.abs(q.b.v)) || 1, mag = Math.pow(10, Math.floor(Math.log10(hi)));
+    $('#hintNote').textContent = `💡 The higher value is roughly ${fmt(q.stat, Math.sign(Math.max(q.a.v, q.b.v) || 1) * Math.round(hi / mag) * mag)}.`;
+  }
+  lifeUI();
+}
+function useFlags() {
+  if (!S || locked || paused || flagged) return;
+  flagged = true;
+  for (const side of ['a', 'b']) {
+    const c = data.countries[q[side].id], img = $('#card-' + side).querySelector('.flag');
+    if (/^[A-Z]{2}$/.test(c.iso2 || '')) { img.onerror = () => { img.hidden = true; }; img.src = `https://flagcdn.com/w160/${c.iso2.toLowerCase()}.png`; img.hidden = false; }
+  }
+  $('#fb').textContent = '🚩 Flags revealed — this round is worth half points.'; $('#fb').className = 'fb warn'; lifeUI();
+}
 function setPause(on) {
   if (!S || $('#over').hidden === false || $('#game').hidden) return;
-  if (on === paused) return; paused = on; $('#pauseOv').hidden = !on;
+  if (on === paused) return; paused = on; $('#pauseOv').hidden = !on; lifeUI();
   if (on) { pauseAt = performance.now(); cancelAnimationFrame(raf); }
   else {
     pausedMs += performance.now() - pauseAt;
@@ -412,7 +521,7 @@ function setPause(on) {
 $('#playBtn').onclick = $('#againBtn').onclick = start;
 $('#card-a').onclick = () => !paused && answer('a');
 $('#card-b').onclick = () => !paused && answer('b');
-$('#pauseBtn').onclick = () => setPause(true); $('#resumeBtn').onclick = () => setPause(false);
+$('#pauseBtn').onclick = () => setPause(true); $('#hintBtn').onclick = useHint; $('#flagBtn').onclick = useFlags; $('#resumeBtn').onclick = () => setPause(false);
 $('#soundBtn').onclick = () => { prefs.sound = !prefs.sound; save(prefs); applyPrefs(); };
 $('#themeBtn').onclick = () => { prefs.theme = prefs.theme === 'dark' ? 'light' : 'dark'; save(prefs); applyPrefs(); };
 $('#shareBtn').onclick = async () => {
@@ -422,9 +531,24 @@ $('#shareBtn').onclick = async () => {
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (k === 'p') setPause(!paused);
+  else if (k === 'h') useHint();
+  else if (k === 'f') useFlags();
   else if (!paused && (k === 'arrowleft' || k === 'a')) answer('a');
   else if (!paused && (k === 'arrowright' || k === 'b')) answer('b');
 });
+function burst(x, y) {
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('i'), a = Math.random() * 6.283, d = 70 + Math.random() * 140;
+    p.className = 'dot'; p.style.cssText = `left:${x}px;top:${y}px;--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d}px;background:hsl(${Math.random() * 360} 90% 60%)`;
+    document.body.appendChild(p); setTimeout(() => p.remove(), 950);
+  }
+}
+function fx(ok, side) {
+  if (ok) {
+    const r = $('#card-' + side).getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2);
+    const st = $('#streak'); st.classList.remove('pop'); void st.offsetWidth; st.classList.add('pop');
+  } else { document.body.classList.add('flash'); setTimeout(() => document.body.classList.remove('flash'), 700); }
+}
 init();
 
 </script>
