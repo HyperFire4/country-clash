@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAFWUlEQVR42u2af4hUVRTH7zn3/Zqfzu6suq6GlSQL+cf+UQtJIlkSkURpRSgGBlGGf/UTCoLqjwqDsn80Av9QIkoxKLX/tEhLzdwyEndFl1CWXF13d/bNvJn37j2nP8Yfu86ks/PGcaV3eX8Njzfnc+8953zPuRfc0UFxKw8Ut/iIACKACCACiABCDaNRH2JmIq512hAAYKoAlE13HMtyLCFAiGtiAAjiklcs+UpKvPkARGRImUzH+vsHDvb0negf+PvMIABUQpTJbp8zY0Hn3O6u+R0dbW6uIASHXAojpPWxmO15/hvvbf7q25/ODY2yYBDXMogFS8SOmdl1a5a9uPqRIFBEFIYB6hZzRGw75pmB82te3nDgyPFMOmmZskYn8H01knNXLX9g4/svaaWZRd0IWO++F1Ki76vnXtlwsKe3fXqLlKg06doew5DtM1q3bN/z0aYdiVSciJodRol0PBnbuGX3L7/1zmzL+IFi5kn5fRCoGW2ZTzd/d/TPk/G4XXsEawyAYRjuaH7bzn2JuKOUrnxBIko54anyEcQx1/t61z7DtompeU5MRIlE7NCR3v7TZx3LpIq5B4CcW1BKX9zazIiYSsau/g6zbZqHevpKBc9AbB4As0CJgxdGPc+306auWP1SKVi6qGtWe1YrLYSQEt18cffewxJBjItRzGxZRv/ps+eHRtuy04JA1RGO6g+jhpSV/ycRR8cKr61d/varqwXpi9YyC3TeWb95/cYdmWkJrUk0btSfCyu9FoRQpNPJ2MrHFwfF4shwLjfi5kbc4QtjqpR/9MF7Y45Vt7PecC10OVFJieWwaBgXlwgQBHPcsWzbVEo3SgXdGIBqSqgsIgxDSkRCwktCAwAQARGnFkD1hC+EJnLzRaX1eACltJQ4qRxycwCUpkwqsfCezpFc3pCybDEA+IHqmNkajzt1J+NmAJRnOjMtuePzN7WmCWKPhZSotCaqU5Y2awuB0ERaV/FgpUO5dZMAym5QVXOGDEpRUR8BRAARQATw/wYwmvlnlaVMuY8UpkXXPABESKRSVbpemvJ5b6oDIKKb97bt3E/El6UDAARKZ1tSSxd1TWkAZjYNOTQ8tu6tTb5Sclw9EAS6LZs6vOvjbGu62UX9ZMs0RGhtSSmlYByAVpRKxqZ6QcPlqpKF0lrpCSWl0jpMX/GGhNHyNpgwqSyEEH4QMLG4zvHBzQYAgEApYkZEpXS5lauUNgzp5j2v5Ics4RvaF6r2i5Q4lve2bt9r2GamNZ3OJNOZZEs2zQBffPOjHyhEaCxA/T4gEbEiaGhNqURs09bve/46NW9ue7nva5jyxKmBgz196WS8MpchgGhySYkIfinonDc725rKF0qVfRHbNvf/emzvz0cv+4NtGfGYc9VrAMIP1G0d07OXolOTAADA94M5s9ruuqPjwJHeVCKmJ1rGzMlE7ErCEoJYVEYbBPT9YEHnXCceGx3JGVI2zweIyHSsZx5bVPwPvyS6ch6jNFWNlcTsONbTy+4npbDeXVQngJQynyusWrFk2UPdg0MjlmlMdg0tyzh7bvjZJ5cs7L7bdb26o1O4Qz7b/Ofc8FMvfPDHsf7WTEoicg1RHgQESp2/kFv5xOLPPlxHREz1uzGEuXJGRLZjuW7x3U++3Lp9T6Ho17ITWHC2Jf38yodfX7uCBetw/WoIeWeOiEzTcBz70O99P+w/evzkGSmxqrQBIYjZNGR31/zF9y2Yd+fs/FiBOexBN4S/9MfMxJyMx9AyRE2yDIJiySv6KBuQ1Rog5gBAAuQLHuVFjQYhQkMuSjRSjWLDVU7UlYgAIoAIIAKIAK4//gU468QMmUUGGQAAAABJRU5ErkJggg==">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0f1a">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Country Clash — name the higher country from its outline</title>
 <style>
 :root{--bg:#0b0f1a;--bg2:#141a2b;--fg:#eef1f8;--mute:#8b94ab;--sil:#cfd8ee;--acc:#6c8cff;--ok:#2ecc71;--bad:#ff4d5e;--warn:#ffb020;--line:#232b42}
@@ -176,6 +181,8 @@ body.panic #vig{opacity:1;animation:vigp .7s ease-in-out infinite alternate}@key
     <div class="lifetime" id="lifetime"></div>
     <button class="primary" id="playBtn" disabled>Loading data…</button>
     <div class="modes"><button data-mode="daily" disabled>📅 Daily</button><button data-mode="blitz" disabled>⚡ Blitz</button><button data-mode="hardcore" disabled>💀 Hardcore</button><button data-mode="practice" disabled>🎓 Practice</button></div>
+    <button id="installBtn" class="primary" hidden>⬇ Install app</button>
+    <p id="iosHint" class="modenote" hidden>On iPhone/iPad: tap the Share icon, then “Add to Home Screen” to install.</p>
     <p id="dailyNote" class="modenote"></p>
     <p class="modenote">Daily: same questions for everyone, one try a day · Blitz: 15 s per question · Hardcore: no lifelines · Practice: no game over, no records</p>
     <div id="loading"><div class="loadbar"><i id="loadFill"></i></div><p id="tip" class="tip"></p></div>
@@ -749,6 +756,15 @@ function drawGlobe(ctx, W, H, lam0Deg, time, clear = true) {
   orbit(true);
 }
 // ===== /globe =====
+
+// ===== install as app (PWA) =====
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+let installEv = null;
+const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEv = e; if (!standalone) $('#installBtn').hidden = false; });
+$('#installBtn').onclick = async () => { if (!installEv) return; installEv.prompt(); try { await installEv.userChoice; } catch {} installEv = null; $('#installBtn').hidden = true; };
+addEventListener('appinstalled', () => { $('#installBtn').hidden = true; });
+if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) $('#iosHint').hidden = false;
 
 let globeStart = () => {};
 try {
