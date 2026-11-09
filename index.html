@@ -302,7 +302,7 @@ function fmt(stat, v) {
 // ---------- runtime data loader (map from Natural Earth, stats from World Bank) ----------
 const NE_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson';
 const WB_URL = (c, p) => `https://api.worldbank.org/v2/country/all/indicator/${c}?format=json&per_page=20000&mrnev=1&page=${p}`;
-const CACHE_KEY = 'countryClash.data.v3', CACHE_DAYS = 14;
+const CACHE_KEY = 'countryClash.data.v4', CACHE_DAYS = 14;
 // [WB code, id, category, label, unit, kind]  kind: num | usd | pct | dec
 const STATS = [
 ['SP.POP.TOTL','pop','Population','total population','','num'],
@@ -348,6 +348,9 @@ const STATS = [
 ['MS.MIL.XPND.CD','military','Misc','military spending','','usd'],
 ['NV.AGR.TOTL.CD','agri','Misc','agricultural output','','usd'],
 ];
+// Only real, sovereign countries: 'Sovereign country' entries, plus the sovereign states Natural Earth files under other labels.
+// Dependencies (Ashmore & Cartier, Indian Ocean Ter., Puerto Rico, Hong Kong, Greenland, Jersey…) are deliberately left out.
+const REAL = new Set('USA GBR NZL NLD FRA FIN DNK CHN AUS ISR PSE'.split(' '));
 const FAMOUS = new Set('USA CHN IND BRA RUS JPN DEU GBR FRA ITA CAN AUS MEX ESP IDN SAU TUR EGY ZAF NGA ARG KOR IRN PAK THA SWE NOR FIN CHL PER COL UKR POL GRC NZL IRL ISR CUB NLD CHE'.split(' '));
 const BOX = { DNK:[8,54,15.5,58], FRA:[-5.5,41,10,51.5], NLD:[3,50.5,7.5,53.8], USA:[-125,24,-66,50],
   NOR:[4,57,32,72], ESP:[-10,35.5,4.5,44], PRT:[-10,36.5,-6,42.2], CHL:[-76,-56,-66,-17.4], ECU:[-82,-5.1,-75,2] };
@@ -392,6 +395,9 @@ async function loadData(onProgress = () => {}) {
     const iso = p('ISO_A3_EH'), cont = p('CONTINENT');
     if (!iso || iso === '-99' || iso === 'ATA' || /Seven seas/.test(cont)) continue;
     if (cont === 'Oceania' && !['AUS', 'NZL'].includes(iso)) continue;
+    const type = p('TYPE');
+    if (!(type === 'Sovereign country' || type === 'Sovereignty' || REAL.has(iso))) continue;
+    if (countries[iso]) continue;   // never let a second feature with the same code overwrite the first
     countries[iso] = { id: iso, name: p('NAME'), continent: cont, iso2: p('ISO_A2_EH'), famous: FAMOUS.has(iso), ...silhouette(iso, f.geometry) };
   }
   const stats = {}; let done = 0, queue = [...STATS];
@@ -826,3 +832,4 @@ init();
 </script>
 </body>
 </html>
+
